@@ -1,0 +1,30 @@
+services:
+  shop:
+    build: .
+    environment:
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-}
+    volumes:
+      - shop-data:/app/instance
+    networks:
+      - local-app
+    restart: unless-stopped
+
+  proxy:
+    image: haproxy:2.7.2
+    depends_on:
+      - shop
+    ports:
+      - "127.0.0.1:5001:80"
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    command: ["haproxy", "-f", "/usr/local/etc/haproxy/haproxy.cfg", "-db"]
+    networks:
+      - local-app
+    restart: unless-stopped
+
+networks:
+  local-app: {}
+
+volumes:
+  shop-data:

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile · Morrow Market{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+  <header class="profile-heading">
+    <div>
+      <p class="eyebrow">YOUR MORROW ACCOUNT</p>
+      <h1>My profile<span>.</span></h1>
+      <p class="profile-intro">Your account details and recent activity.</p>
+    </div>
+
+    <a class="profile-shop-link" href="{{ url_for('index') }}">
+      Continue shopping <span>→</span>
+    </a>
+  </header>
+
+  <div class="profile-grid">
+    <section class="profile-card">
+      <div class="profile-cover">
+        <span class="profile-cover-label">MORROW MEMBER</span>
+
+        <div class="profile-avatar">
+          {% if user.avatar_filename %}
+            <img
+              src="{{ url_for('static', filename='uploads/avatars/' ~ user.avatar_filename) }}"
+              alt="{{ user.name }}'s profile photo"
+            >
+          {% else %}
+            {{ user.name[0]|upper }}
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="profile-identity">
+        <p class="eyebrow">ACCOUNT HOLDER</p>
+        <h2>{{ user.name }}</h2>
+        <p>{{ user.email }}</p>
+        <span class="profile-role">{{ user.role|title }} account</span>
+      </div>
+
+      <form
+        class="avatar-form"
+        method="post"
+        action="{{ url_for('profile') }}"
+        enctype="multipart/form-data"
+      >
+        <label for="avatar">Profile photo</label>
+        <input
+          id="avatar"
+          name="avatar"
+          type="file"
+          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+          required
+        >
+        <small>Choose a JPG, PNG, or WEBP image.</small>
+        <button type="submit">Upload photo</button>
+      </form>
+
+      <div class="profile-info">
+        <div>
+          <span>Full name</span>
+          <strong>{{ user.name }}</strong>
+        </div>
+        <div>
+          <span>Email address</span>
+          <strong>{{ user.email }}</strong>
+        </div>
+        <div>
+          <span>Account type</span>
+          <strong>{{ user.role|title }}</strong>
+        </div>
+      </div>
+
+      <form method="post" action="{{ url_for('logout') }}">
+        <button class="profile-logout" type="submit">
+          Sign out <span>↗</span>
+        </button>
+      </form>
+    </section>
+
+    <div class="profile-main">
+      <section class="profile-stats">
+        <article class="profile-stat-card">
+          <span class="profile-stat-icon">↗</span>
+          <div>
+            <small>ORDERS PLACED</small>
+            <strong>{{ stats.order_count }}</strong>
+          </div>
+        </article>
+
+        <article class="profile-stat-card">
+          <span class="profile-stat-icon">₹</span>
+          <div>
+            <small>TOTAL ORDER VALUE</small>
+            <strong>{{ stats.total_spent|money }}</strong>
+          </div>
+        </article>
+      </section>
+
+      <section class="profile-recent">
+        <div class="profile-section-heading">
+          <div>
+            <p class="eyebrow">YOUR RECENT ACTIVITY</p>
+            <h2>Recent orders</h2>
+          </div>
+          <a href="{{ url_for('orders') }}">View all →</a>
+        </div>
+
+        {% if recent_orders %}
+          <div class="profile-order-list">
+            {% for order in recent_orders %}
+              <article class="profile-order">
+                <div class="profile-order-mark">✦</div>
+                <div class="profile-order-info">
+                  <strong>Order #MM-{{ "%04d"|format(order.id) }}</strong>
+                  <span>{{ order.created_at }}</span>
+                </div>
+                <strong class="profile-order-total">
+                  {{ order.total_cents|money }}
+                </strong>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="profile-no-orders">
+            <span aria-hidden="true">📦</span>
+            <div>
+              <strong>No orders yet</strong>
+              <p>Your orders will appear here after checkout.</p>
+            </div>
+          </div>
+        {% endif %}
+      </section>
+
+      <a class="profile-orders-link" href="{{ url_for('orders') }}">
+        Go to order history <span>→</span>
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

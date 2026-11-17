@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Explore · Morrow Market{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">A LITTLE MORE EVERYDAY</p>
+    <h1>Find your<br><em>good things.</em></h1>
+    <p class="hero-sub">
+      Explore useful, well-made pieces for the spaces and moments
+      that make up your day.
+    </p>
+    <a class="button dark" href="#catalog">
+      Explore the collection <span>↘</span>
+    </a>
+  </div>
+
+  <div class="hero-art" aria-hidden="true">
+    <div class="sun"></div>
+    <div class="art-card card-one">☕</div>
+    <div class="art-card card-two">🌿</div>
+    <div class="art-label">small joys,<br>daily rituals</div>
+  </div>
+
+  <div class="hero-index">CURATED GOODS</div>
+</section>
+
+<section class="trust-row" aria-label="Shopping benefits">
+  <div class="trust-item">
+    <span class="trust-icon" aria-hidden="true">✓</span>
+    <span>Secure checkout</span>
+  </div>
+
+  <div class="trust-item">
+    <span class="trust-icon" aria-hidden="true">↺</span>
+    <span>Easy returns</span>
+  </div>
+
+  <div class="trust-item">
+    <span class="trust-icon" aria-hidden="true">✦</span>
+    <span>Carefully selected goods</span>
+  </div>
+</section>
+
+{% if popular_products %}
+<section class="popular-section">
+  <p class="eyebrow">COMMUNITY FAVORITES</p>
+  <h2>Popular picks</h2>
+
+  <div class="product-grid">
+    {% for product in popular_products %}
+      <article class="product-card">
+        <a class="product-image" href="{{ url_for('product_detail', product_id=product.id) }}">
+          <img src="{{ product.image }}" alt="{{ product.name }}">
+        </a>
+
+        <button
+          class="wishlist-button"
+          type="button"
+          data-product-id="{{ product.id }}"
+          aria-label="Add {{ product.name }} to wishlist"
+        >
+          ♡
+        </button>
+
+        <div class="product-meta">
+          <div>
+            <h3>
+              <a href="{{ url_for('product_detail', product_id=product.id) }}">
+                {{ product.name }}
+              </a>
+            </h3>
+            <p>{{ product.category }}</p>
+          </div>
+          <strong>{{ product.price_cents|money }}</strong>
+        </div>
+
+        <form method="post" action="{{ url_for('cart_add', product_id=product.id) }}">
+          <button class="add-button" type="submit">Add to bag <span>+</span></button>
+        </form>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="catalog" id="catalog">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">BROWSE AND DISCOVER</p>
+      <h2>Explore the collection</h2>
+    </div>
+
+    <form class="search" method="get" action="{{ url_for('index') }}">
+      <input
+        type="search"
+        name="q"
+        value="{{ query }}"
+        placeholder="Search products…"
+        aria-label="Search products"
+      >
+      <button type="submit" aria-label="Search">⌕</button>
+    </form>
+  </div>
+
+  <nav class="category-filters" aria-label="Filter products by category">
+    <a
+      class="category-filter {% if not selected_category %}active{% endif %}"
+      href="{{ url_for('index', q=query or None) }}"
+    >
+      All products
+    </a>
+
+    {% for category in categories %}
+      <a
+        class="category-filter {% if selected_category == category %}active{% endif %}"
+        href="{{ url_for('index', category=category, q=query or None) }}"
+      >
+        {{ category }}
+      </a>
+    {% endfor %}
+  </nav>
+
+  {% if query %}
+    <p class="results">
+      Showing results for “{{ query|safe }}”
+      <a href="{{ url_for('index') }}">Clear</a>
+    </p>
+  {% endif %}
+
+  <div class="product-grid">
+    {% for product in products %}
+      <article class="product-card">
+        <a
+          class="product-image tone-{{ loop.index0 % 6 }}"
+          href="{{ url_for('product_detail', product_id=product.id) }}"
+        >
+          <span class="category">{{ product.category }}</span>
+          <img
+            class="product-photo"
+            src="{{ product.image }}"
+            alt="{{ product.name }}"
+            loading="lazy"
+          >
+          <span class="view-product">VIEW ↗</span>
+        </a>
+
+        <button
+          class="wishlist-button"
+          type="button"
+          data-product-id="{{ product.id }}"
+          aria-label="Add {{ product.name }} to wishlist"
+        >
+          ♡
+        </button>
+
+        <div class="product-meta">
+          <div>
+            <h3>
+              <a href="{{ url_for('product_detail', product_id=product.id) }}">
+                {{ product.name }}
+              </a>
+            </h3>
+
+            <div
+              class="product-rating"
+              aria-label="Rated {{ product.rating }} out of 5"
+            >
+              <span class="rating-stars" aria-hidden="true">★★★★★</span>
+              <span class="rating-score">{{ "%.1f"|format(product.rating) }}</span>
+              <span class="rating-count">({{ product.rating_count }} reviews)</span>
+            </div>
+
+            <p>{{ product.description }}</p>
+          </div>
+          <strong>{{ product.price_cents|money }}</strong>
+        </div>
+
+        <form
+          class="add-to-bag-form"
+          method="post"
+          action="{{ url_for('cart_add', product_id=product.id) }}"
+        >
+          <button class="add-button" type="submit">
+            Add to bag <span>+</span>
+          </button>
+        </form>
+      </article>
+    {% else %}
+      <div class="empty">
+        <h3>No matching finds.</h3>
+        <p>Try another search.</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout · Morrow Market{% endblock %}
+
+{% block content %}
+<section class="checkout-page">
+  <header class="checkout-heading">
+    <p class="eyebrow">ONE LAST STEP</p>
+    <h1>Checkout<span class="title-dot">.</span></h1>
+    <p>Confirm your delivery details and review your order.</p>
+  </header>
+
+  <div class="checkout-steps" aria-label="Checkout progress">
+    <span class="step done"><b>01</b> Bag</span>
+    <span class="step active"><b>02</b> Delivery</span>
+    <span class="step {% if payment_ready %}active{% endif %}">
+      <b>03</b> Payment
+    </span>
+  </div>
+
+  <div class="checkout-layout">
+    <main class="checkout-main">
+      {% if payment_ready %}
+        <section class="checkout-card payment-card">
+          <div class="card-heading">
+            <span class="step-number">03</span>
+            <div>
+              <p class="eyebrow">SECURE CHECKOUT</p>
+              <h2>Complete your payment</h2>
+            </div>
+          </div>
+
+          <p class="checkout-copy">
+            Your delivery details are saved. Continue to open the secure payment window.
+          </p>
+
+          <button class="checkout-pay-button" id="pay-button" type="button">
+            <span>Continue to payment</span>
+            <span aria-hidden="true">→</span>
+          </button>
+
+          <p class="checkout-small-note">
+            Payment will be processed using Razorpay test mode.
+          </p>
+        </section>
+      {% else %}
+        <form class="checkout-card checkout-form" method="post" action="{{ url_for('checkout') }}">
+          <div class="card-heading">
+            <span class="step-number">01</span>
+            <div>
+              <p class="eyebrow">WHERE SHOULD WE SEND IT?</p>
+              <h2>Delivery details</h2>
+            </div>
+          </div>
+
+          <label class="checkout-field">
+            <span>Full name</span>
+            <input
+              type="text"
+              name="name"
+              value="{{ current_user.name }}"
+              autocomplete="name"
+              required
+            >
+          </label>
+
+          <label class="checkout-field">
+            <span>Email address</span>
+            <input
+              type="email"
+              value="{{ current_user.email }}"
+              autocomplete="email"
+              readonly
+            >
+          </label>
+
+          <label class="checkout-field">
+            <span>Delivery address</span>
+            <textarea
+              name="address"
+              rows="4"
+              autocomplete="street-address"
+              placeholder="House number, street, area, city, PIN code"
+              required
+            ></textarea>
+            <small>Enter the complete address for delivery.</small>
+          </label>
+
+          <button class="checkout-pay-button" type="submit">
+            <span>Continue to payment</span>
+            <span aria-hidden="true">→</span>
+          </button>
+
+          <p class="checkout-small-note">
+            You will review your order before payment.
+          </p>
+        </form>
+      {% endif %}
+
+      <section class="checkout-card items-card">
+        <div class="card-heading">
+          <span class="step-number">02</span>
+          <div>
+            <p class="eyebrow">A QUICK LAST LOOK</p>
+            <h2>Your items</h2>
+          </div>
+        </div>
+
+        <div class="checkout-items">
+          {% for product, qty in rows %}
+            <article class="checkout-item">
+              <div class="checkout-item-image">
+                <img
+                  class="checkout-product-photo"
+                  src="{{ product.image }}"
+                  alt="{{ product.name }}"
+                  loading="lazy"
+                >
+        </div>
+              <div class="checkout-item-info">
+                <span class="checkout-category">{{ product.category }}</span>
+                <h3>{{ product.name }}</h3>
+                <p>{{ product.price_cents|money }} each · Quantity {{ qty }}</p>
+              </div>
+
+              <strong>{{ (product.price_cents * qty)|money }}</strong>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+
+    <aside class="checkout-summary">
+      <p class="eyebrow">YOUR ORDER</p>
+      <h2>Order summary</h2>
+
+      {% for product, qty in rows %}
+        <div class="checkout-summary-line">
+          <span>{{ product.name }} × {{ qty }}</span>
+          <strong>{{ (product.price_cents * qty)|money }}</strong>
+        </div>
+      {% endfor %}
+
+      <div class="checkout-summary-line shipping-line">
+        <span>Shipping</span>
+        <strong>Free</strong>
+      </div>
+
+      <div class="checkout-total">
+        <div>
+          <span>Total</span>
+          <small>Final amount for this order</small>
+        </div>
+        <strong>{{ total|money }}</strong>
+      </div>
+
+      <a class="checkout-back-link" href="{{ url_for('cart') }}">
+        ← Return to your bag
+      </a>
+    </aside>
+  </div>
+</section>
+
+{% if payment_ready %}
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+    document.getElementById("pay-button").addEventListener("click", function () {
+      const options = {
+        key: {{ razorpay_key_id|tojson }},
+        amount: {{ razorpay_amount|tojson }},
+        currency: "INR",
+        name: "Morrow Market",
+        description: "Shopping order",
+        order_id: {{ razorpay_order_id|tojson }},
+        handler: function (response) {
+          const form = document.createElement("form");
+          form.method = "POST";
+          form.action = {{ url_for("verify_payment")|tojson }};
+
+          const values = {
+            local_order_id: {{ local_order_id|tojson }},
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature
+          };
+
+          Object.entries(values).forEach(([name, value]) => {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+          });
+
+          document.body.appendChild(form);
+          form.submit();
+        },
+        theme: {
+          color: "#254c3b"
+        }
+      };
+
+      const paymentWindow = new Razorpay(options);
+      paymentWindow.open();
+    });
+  </script>
+{% endif %}
+{% endblock %}

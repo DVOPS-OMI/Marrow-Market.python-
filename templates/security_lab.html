@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Local Security Lab</title>
+<style>body{font:16px system-ui;max-width:850px;margin:2rem auto;padding:0 1rem;color:#24323a}h1{color:#173e35}li{margin:.55rem 0}code{background:#eef2ef;padding:.15rem .35rem}section{border:1px solid #d7e0dc;border-radius:10px;padding:1rem;margin:1rem 0}input{padding:.5rem;min-width:18rem}button{padding:.55rem 1rem}small{color:#53645c}</style></head>
+<body><h1>Local Security Lab</h1><p>Loopback-only training exercises using fictional data. Lab mode must be enabled with <code>SECURITY_LAB=1</code>.</p>
+{% if not exercise %}<ol>
+<li><a href="{{ url_for('security_lab_html') }}">HTML injection</a></li>
+<li><a href="{{ url_for('security_lab_content', text='Hello from the lab') }}">Content spoofing / reflected text</a></li>
+<li><a href="{{ url_for('security_lab_params', item='first') }}&amp;item=second">HTTP parameter pollution</a></li>
+<li><a href="{{ url_for('security_lab_csv') }}?name=Demo%20Customer">CSV formula injection</a> — try a disposable input such as <code>=1+1</code> in the name query.</li>
+<li><a href="{{ url_for('security_lab_cors') }}">Overly broad CORS response</a></li>
+<li><a href="{{ url_for('security_lab_csp') }}">Weak CSP header</a></li>
+<li><a href="{{ url_for('security_lab_frame') }}">Frameable page / clickjacking setup</a></li>
+<li><a href="{{ url_for('security_lab_unauth_api') }}">Unauthenticated synthetic API</a></li>
+</ol>
+{% elif exercise == 'html' %}<section><h2>HTML injection</h2><form method="get"><label>Text / HTML <input name="text" value=""></label> <button>Render</button></form>{% if submitted %}<div><strong>Output:</strong> {{ submitted|safe }}</div>{% endif %}</section>
+{% elif exercise == 'content' %}<section><h2>Reflected content spoofing</h2><p>Announcement: {{ submitted }}</p><small>Compare ordinary reflected text with the HTML injection exercise.</small></section>
+{% elif exercise == 'params' %}<section><h2>Duplicate parameter values</h2><p>Request: <code>?item=first&amp;item=second</code></p><p>Flask sees all values: {{ values|join(', ') }}</p><p>Single-value accessor would return: {{ values[0] if values else '(none)' }}</p></section>
+{% elif exercise == 'csp' %}<section><h2>Weak CSP</h2><p>Inspect this response's <code>Content-Security-Policy</code> header. This deliberately permissive policy is scoped to this page.</p></section>
+{% elif exercise == 'frame' %}<section><h2>Frameable lab page</h2><p>This page intentionally permits framing. Use a local parent page or browser devtools to inspect the frame behavior.</p></section>
+{% endif %}
+<p><a href="{{ url_for('security_lab_home') }}">Lab index</a> · <a href="{{ url_for('index') }}">Storefront</a></p></body></html>

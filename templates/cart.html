@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Bag · Morrow Market{% endblock %}
+
+{% block content %}
+<section class="bag-page">
+  <div class="bag-heading">
+    <div>
+      <p class="eyebrow">YOUR MORROW MARKET SELECTION</p>
+      <h1>Your shopping bag<span>.</span></h1>
+      <p class="bag-subtitle">
+        Review your finds before continuing to checkout.
+      </p>
+    </div>
+
+    <div class="bag-item-count">
+      <span class="bag-count-number">{{ cart_count }}</span>
+      <span>{% if cart_count == 1 %}item{% else %}items{% endif %} in your bag</span>
+    </div>
+  </div>
+
+  {% if items %}
+    <div class="bag-layout">
+      <section class="bag-products">
+        <div class="bag-section-heading">
+          <h2>Your items</h2>
+          <span>Price</span>
+        </div>
+
+        <form method="post" action="{{ url_for('cart_update') }}">
+          <div class="bag-product-list">
+            {% for item in items %}
+              <article class="bag-product">
+                <a
+                  class="bag-product-art bag-tone-{{ loop.index0 % 6 }}"
+                  href="{{ url_for('product_detail', product_id=item.product.id) }}"
+                  aria-label="View {{ item.product.name }}"
+                >
+                  <img
+                    class="bag-product-photo"
+                    src="{{ item.product.image }}"
+                    alt="{{ item.product.name }}"
+                    loading="lazy"
+                  >
+                </a>
+
+                <div class="bag-product-details">
+                  <div class="bag-product-top">
+                    <div>
+                      <p class="bag-category">{{ item.product.category }}</p>
+                      <h3>
+                        <a href="{{ url_for('product_detail', product_id=item.product.id) }}">
+                          {{ item.product.name }}
+                        </a>
+                      </h3>
+                      <p class="bag-description">{{ item.product.description }}</p>
+                    </div>
+
+                    <strong class="bag-line-price">
+                      {{ item.subtotal|money }}
+                    </strong>
+                  </div>
+
+                  <div class="bag-product-bottom">
+                    <label class="bag-quantity">
+                      <span>Quantity</span>
+                      <input
+                        type="number"
+                        name="{{ item.product.id }}"
+                        value="{{ item.quantity }}"
+                        min="0"
+                        max="20"
+                        aria-label="Quantity for {{ item.product.name }}"
+                      >
+                    </label>
+
+                    <span class="bag-unit-price">
+                      {{ item.product.price_cents|money }} each
+                    </span>
+                  </div>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+
+          <div class="bag-list-actions">
+            <a class="bag-continue-shopping" href="{{ url_for('index') }}">
+              <span aria-hidden="true">←</span> Continue shopping
+            </a>
+
+            <button class="bag-update-button" type="submit">
+              Update bag
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="bag-summary">
+        <div class="bag-summary-heading">
+          <p class="eyebrow">READY WHEN YOU ARE</p>
+          <h2>Order summary</h2>
+        </div>
+
+        <div class="bag-summary-row">
+          <span>Subtotal</span>
+          <strong>{{ total|money }}</strong>
+        </div>
+
+        <div class="bag-summary-row">
+          <span>Demo shipping</span>
+          <strong class="bag-free">Free</strong>
+        </div>
+
+        <div class="bag-summary-total">
+          <span>Total</span>
+          <strong>{{ total|money }}</strong>
+        </div>
+
+        <a class="bag-checkout-button" href="{{ url_for('checkout') }}">
+          Continue to checkout
+          <span aria-hidden="true">→</span>
+        </a>
+
+        <p class="bag-demo-note">
+          This is a demo store. Checkout does not collect payment details.
+        </p>
+
+        <div class="bag-perks">
+          <div><span>✓</span> Carefully chosen everyday goods</div>
+          <div><span>✓</span> No payment is taken in this demo</div>
+        </div>
+      </aside>
+    </div>
+  {% else %}
+    <div class="bag-empty-state">
+      <div class="bag-empty-icon" aria-hidden="true">🛍️</div>
+      <p class="eyebrow">NOTHING IN HERE JUST YET</p>
+      <h2>Your bag is waiting for a good find.</h2>
+      <p>Explore the collection and add something you love.</p>
+      <a class="bag-checkout-button bag-browse-button" href="{{ url_for('index') }}">
+        Explore the collection <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

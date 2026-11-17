@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} · Morrow Market{% endblock %}
+
+{% block content %}
+<section class="info-page">
+  <a class="info-back" href="{{ url_for('index') }}">← Back to the store</a>
+
+  <div class="info-card">
+    <p class="eyebrow">{{ page.eyebrow }}</p>
+    <h1>{{ page.title }}<span>.</span></h1>
+    <p class="info-intro">{{ page.intro }}</p>
+
+    <div class="info-copy">
+      {% for paragraph in page.paragraphs %}
+        <p>{{ paragraph }}</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

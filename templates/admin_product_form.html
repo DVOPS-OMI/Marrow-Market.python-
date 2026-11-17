@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} · Morrow Market{% endblock %}
+
+{% block content %}
+<section class="admin-page">
+  <a class="admin-back-link" href="{{ url_for('admin') }}">
+    ← Back to store console
+  </a>
+
+  <form class="admin-product-form" method="post">
+    <p class="eyebrow">STORE CATALOG</p>
+    <h1>{{ page_title }}<span class="title-dot">.</span></h1>
+
+    <label>
+      Product name
+      <input
+        name="name"
+        required
+        maxlength="120"
+        value="{{ request.form.get('name', product.name if product else '') }}"
+      >
+    </label>
+
+    <label>
+      Description
+      <textarea name="description" rows="4" required>{{ request.form.get('description', product.description if product else '') }}</textarea>
+    </label>
+
+    <div class="admin-form-row">
+      <label>
+        Price (₹)
+        <input
+          name="price"
+          type="number"
+          min="0.01"
+          step="0.01"
+          required
+          value="{{ price_value }}"
+        >
+      </label>
+
+      <label>
+        Category
+        {% set selected_category = request.form.get('category', product.category if product else '') %}
+        <select name="category" required>
+          <option value="">Choose a category</option>
+          {% for category in categories %}
+            <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>
+              {{ category }}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <label>
+      Product image URL
+      <input
+        name="image"
+        type="url"
+        required
+        placeholder="https://example.com/product.jpg"
+        value="{{ request.form.get('image', product.image if product else '') }}"
+      >
+    </label>
+
+    <button class="admin-primary-button admin-save-button" type="submit">
+      Save product <span>→</span>
+    </button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Store Console · Morrow Market{% endblock %}
+
+{% block content %}
+<section class="admin-page">
+  <header class="admin-welcome">
+    <div>
+      <p class="eyebrow">MORROW MARKET · ADMIN</p>
+      <h1>Store console<span class="title-dot">.</span></h1>
+      <p class="muted">Manage products and review recent orders.</p>
+    </div>
+
+    <a class="admin-primary-button" href="{{ url_for('admin_product_new') }}">
+      Add product <span>+</span>
+    </a>
+  </header>
+
+  <div class="admin-stats">
+    <article><span>PRODUCTS</span><strong>{{ stats.products }}</strong></article>
+    <article><span>ORDERS</span><strong>{{ stats.orders }}</strong></article>
+    <article><span>CUSTOMERS</span><strong>{{ stats.customers }}</strong></article>
+  </div>
+
+  <section class="admin-panel">
+    <div class="admin-panel-heading">
+      <div>
+        <p class="eyebrow">STORE CATALOG</p>
+        <h2>Products</h2>
+      </div>
+      <a href="{{ url_for('admin_product_new') }}">Add a product +</a>
+    </div>
+
+    <div class="admin-table-scroll">
+      <table class="admin-manage-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+            <tr>
+              <td>
+                <div class="admin-product">
+                  <img src="{{ product.image }}" alt="" loading="lazy">
+                  <div>
+                    <strong>{{ product.name }}</strong>
+                    <small>{{ product.description }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>{{ product.category }}</td>
+              <td>{{ product.price_cents|money }}</td>
+              <td>
+                <div class="admin-actions">
+                  <a href="{{ url_for('admin_product_edit', product_id=product.id) }}">
+                    Edit
+                  </a>
+
+                  <form
+                    method="post"
+                    action="{{ url_for('admin_product_delete', product_id=product.id) }}"
+                    onsubmit="return confirm('Delete this product?')"
+                  >
+                    <button type="submit">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="4">No products found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="admin-panel">
+    <div class="admin-panel-heading">
+      <div>
+        <p class="eyebrow">LATEST ACTIVITY</p>
+        <h2>Recent orders</h2>
+      </div>
+    </div>
+
+    {% if recent_orders %}
+      <div class="admin-table-scroll">
+        <table class="admin-manage-table">
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in recent_orders %}
+              <tr>
+                <td>#{{ order.id }}</td>
+                <td>
+                  {{ order.customer_name }}
+                  <small>{{ order.customer_email }}</small>
+                </td>
+                <td>{{ order.created_at }}</td>
+                <td>{{ order.total_cents|money }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">No orders have been placed yet.</p>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}

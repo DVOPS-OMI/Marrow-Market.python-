@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} · Morrow Market{% endblock %}
+
+{% block content %}
+<section class="product-page">
+  <nav class="product-breadcrumb" aria-label="Breadcrumb">
+    <a href="{{ url_for('index') }}">Shop</a>
+    <span>/</span>
+    <span>{{ product.category }}</span>
+    <span>/</span>
+    <span>{{ product.name }}</span>
+  </nav>
+
+  <div class="product-layout">
+    <div class="product-gallery">
+      <div class="product-main-image product-tone-{{ product.id % 6 }}">
+        <span class="product-image-category">{{ product.category }}</span>
+        <img
+  class="detail-photo"
+  src="{{ product.image }}"
+  alt="{{ product.name }}"
+>
+        <span class="product-image-caption">A MORROW MARKET FIND</span>
+      </div>
+
+      <div class="product-image-note">
+        <span class="product-note-mark">m</span>
+        <p>Thoughtful finds for the spaces and moments that make up your day.</p>
+      </div>
+    </div>
+
+    <div class="product-information">
+      <p class="eyebrow">{{ product.category }} · THE MORROW EDIT</p>
+      <h1>{{ product.name }}</h1>
+
+      <div class="product-rating">
+        <span aria-hidden="true">★★★★★</span>
+        <small>Everyday favourite</small>
+      </div>
+
+      <p class="product-price">{{ product.price_cents|money }}</p>
+
+      <p class="product-description">
+        {{ product.description }}
+      </p>
+
+      {% if remote_supplier_note %}
+      <p class="product-description supplier-note">
+        {{ remote_supplier_note }}
+      </p>
+      {% endif %}
+
+      <div class="product-divider"></div>
+
+      <div class="product-detail-row">
+        <span class="product-detail-icon">✳</span>
+        <div>
+          <strong>A thoughtful everyday find</strong>
+          <p>Explore its details and add it to your shopping bag.</p>
+        </div>
+      </div>
+
+      <div class="product-detail-row">
+        <span class="product-detail-icon">↗</span>
+        <div>
+          <strong>Simple checkout</strong>
+          <p>Your order total is shown before you continue.</p>
+        </div>
+      </div>
+
+      <form
+        class="product-add-form"
+        method="post"
+        action="{{ url_for('cart_add', product_id=product.id) }}"
+      >
+        <button class="product-add-button" type="submit">
+          <span>Add to bag</span>
+          <span aria-hidden="true">＋</span>
+        </button>
+      </form>
+
+      <a class="product-back-link" href="{{ url_for('index') }}">
+        ← Back to the collection
+      </a>
+
+      <div class="product-demo-note">
+        Local shopping project · Checkout is handled by your app.
+      </div>
+    </div>
+  </div>
+</section>
+<section class="reviews-section" id="reviews">
+  <p class="eyebrow">CUSTOMER NOTES</p>
+  <h2>Reviews</h2>
+
+  {% if reviews %}
+    <div class="review-list">
+      {% for review in reviews %}
+        <article class="review-card">
+          <div class="review-stars" aria-label="{{ review.rating }} out of 5 stars">
+            {% for star in range(review.rating) %}★{% endfor %}
+            {% for star in range(5 - review.rating) %}☆{% endfor %}
+          </div>
+
+          <p>{{ review.comment }}</p>
+          <small>Customer · {{ review.created_at }}</small>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="review-empty">No reviews yet. Be the first to share your thoughts.</p>
+  {% endif %}
+
+  <form class="review-form" method="post"
+        action="{{ url_for('product_detail', product_id=product.id) }}#reviews">
+    <h3>Write a review</h3>
+
+    <label for="rating">Your rating</label>
+    <select id="rating" name="rating" required>
+      <option value="">Choose a rating</option>
+      <option value="5">5 — Excellent</option>
+      <option value="4">4 — Very good</option>
+      <option value="3">3 — Good</option>
+      <option value="2">2 — Fair</option>
+      <option value="1">1 — Needs improvement</option>
+    </select>
+
+    <label for="comment">Your review</label>
+    <textarea
+      id="comment"
+      name="comment"
+      rows="4"
+      maxlength="1000"
+      placeholder="What did you think of this product?"
+      required
+    ></textarea>
+
+    <button type="submit" class="product-add-button">Submit review</button>
+  </form>
+</section>
+{% endblock %}

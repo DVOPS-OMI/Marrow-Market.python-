@@ -1,0 +1,1 @@
+Supplier note for {{ product.name }}. Template calculation: {{ 6 * 7 }}.

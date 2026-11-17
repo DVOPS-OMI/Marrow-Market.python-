@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders · Morrow Market{% endblock %}
+
+{% block content %}
+<section class="orders-page">
+  <header class="orders-heading">
+    <div>
+      <p class="eyebrow">YOUR MORROW ACCOUNT</p>
+      <h1>Your orders<span>.</span></h1>
+      <p class="orders-intro">
+        Your order history, all in one place.
+      </p>
+    </div>
+
+    <a class="orders-shop-link" href="{{ url_for('index') }}">
+      Continue shopping <span>→</span>
+    </a>
+  </header>
+
+  {% if orders %}
+    {% set summary = namespace(total=0) %}
+    {% for order in orders %}
+      {% set summary.total = summary.total + order.total_cents %}
+    {% endfor %}
+
+    <div class="orders-stats">
+      <div class="orders-stat">
+        <span class="orders-stat-icon">↗</span>
+        <div>
+          <small>TOTAL ORDERS</small>
+          <strong>{{ orders|length }}</strong>
+        </div>
+      </div>
+
+      <div class="orders-stat">
+        <span class="orders-stat-icon">₹</span>
+        <div>
+          <small>ORDER VALUE</small>
+          <strong>{{ summary.total|money }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="orders-list-heading">
+      <div>
+        <p class="eyebrow">YOUR HISTORY</p>
+        <h2>Recent orders</h2>
+      </div>
+      <span>{{ orders|length }} order{% if orders|length != 1 %}s{% endif %}</span>
+    </div>
+
+    <div class="orders-list">
+      {% for order in orders %}
+        <article class="order-card">
+          <div class="order-card-top">
+            <div class="order-number-wrap">
+              <div class="order-icon" aria-hidden="true">✦</div>
+              <div class="order-number-details">
+                 <p class="order-label">ORDER NUMBER</p>
+              <h3>#MM-{{ "%04d"|format(order.id) }}</h3>
+
+                 <div class="order-products-preview">
+  <span>ITEMS</span>
+
+  <div class="order-products-thumbnails">
+    {% for item in order["items"] %}
+      <a
+        class="order-product-thumbnail"
+        href="{{ url_for('product_detail', product_id=item.product_id) }}"
+        title="View {{ item.name }}"
+      >
+        <img src="{{ item.image }}" alt="{{ item.name }}">
+        <span>{{ item.name }} <small>× {{ item.quantity }}</small></span>
+      </a>
+    {% else %}
+      <span>No items recorded.</span>
+    {% endfor %}
+  </div>
+</div>
+              </div>
+            </div>
+
+            <span class="order-status">
+              <span class="status-dot"></span>
+              Order placed
+            </span>
+          </div>
+
+          <div class="order-card-bottom">
+            <div class="order-date">
+              <span class="order-detail-label">PLACED ON</span>
+              <strong>{{ order.created_at }}</strong>
+            </div>
+
+            <div class="order-total">
+              <span class="order-detail-label">ORDER TOTAL</span>
+              <strong>{{ order.total_cents|money }}</strong>
+            </div>
+
+            <a
+              class="order-view-link"
+              href="{{ url_for('order_detail', order_id=order.id) }}"
+              aria-label="View order {{ order.id }}"
+            >
+              View order <span>→</span>
+            </a>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <div class="orders-empty">
+      <div class="orders-empty-icon" aria-hidden="true">📦</div>
+      <p class="eyebrow">YOUR STORY STARTS HERE</p>
+      <h2>No orders yet.</h2>
+      <p>When you place an order, it will appear here.</p>
+      <a class="orders-empty-button" href="{{ url_for('index') }}">
+        Explore the collection <span>→</span>
+      </a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>{% block title %}Morrow Market{% endblock %}</title>
+  <link rel="canonical" href="{{ url_for('index', _external=True) }}">
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+
+  <script
+    defer
+    src="{{ url_for('static', filename='js/app.js') }}"
+  ></script>
+</head>
+
+<body>
+  <div class="announcement-bar">
+    <span class="announcement-star" aria-hidden="true">✦</span>
+    {% if notice %}
+      <p>{{ notice }}</p>
+    {% else %}
+      <p>Free shipping on orders over <strong>₹1</strong></p>
+    {% endif %}
+    <span class="announcement-star" aria-hidden="true">✦</span>
+  </div>
+
+  <header class="topbar">
+    <a
+      class="brand"
+      href="{{ url_for('index') }}"
+      aria-label="Morrow Market home"
+    >
+      <span class="brand-mark" aria-hidden="true">m</span>
+      <span class="brand-wordmark">
+        <span class="brand-name">Morrow</span>
+        <span class="brand-divider" aria-hidden="true">·</span>
+        <span class="brand-light">Market</span>
+      </span>
+    </a>
+
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="{{ url_for('index') }}">Explore</a>
+      <a href="{{ url_for('cart') }}">
+        Bag (<span class="count">{{ cart_count }}</span>)
+      </a>
+      <a href="{{ url_for('wishlist') }}">Wishlist</a>
+
+      {% if current_user %}
+        <a href="{{ url_for('orders') }}">Orders</a>
+        <a href="{{ url_for('profile') }}">Profile</a>
+
+        <form method="post" action="{{ url_for('logout') }}">
+          <button type="submit">Sign out</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-wrap" aria-live="polite">
+        {% for category, message in messages %}
+          <div class="flash {{ category }}" role="status">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-about">
+        <a class="footer-brand" href="{{ url_for('index') }}">
+          Morrow <span>Market</span>
+        </a>
+
+        <p class="footer-note">
+          Thoughtful finds for everyday living.
+        </p>
+
+        <small class="footer-demo-note">
+          Local demo store · Test use only
+        </small>
+      </div>
+
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="{{ url_for('store_info_page', slug='about') }}">About</a>
+        <a href="{{ url_for('store_info_page', slug='contact') }}">Contact</a>
+        <a href="{{ url_for('store_info_page', slug='returns') }}">Returns</a>
+        <a href="{{ url_for('store_info_page', slug='privacy') }}">Privacy</a>
+      </nav>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© Morrow Market</span>
+      <span>Made for local learning</span>
+    </div>
+  </footer>
+</body>
+</html>

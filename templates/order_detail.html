@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Order #MM-{{ "%04d"|format(order.id) }} · Morrow Market{% endblock %}
+
+{% block content %}
+<section class="orders-page order-detail-page">
+  <header class="orders-heading order-detail-heading">
+    <div>
+      <p class="eyebrow">YOUR MORROW ACCOUNT · ORDER DETAILS</p>
+      <h1>Order #MM-{{ "%04d"|format(order.id) }}<span>.</span></h1>
+
+      <div class="order-detail-meta">
+        <span>Placed {{ order.created_at }}</span>
+        <span class="order-detail-status">
+          <i aria-hidden="true"></i>{{ order.payment_status|title }}
+        </span>
+      </div>
+    </div>
+
+    <a class="orders-shop-link" href="{{ url_for('orders') }}">
+      <span aria-hidden="true">←</span> Back to orders
+    </a>
+  </header>
+
+  <div class="order-detail-layout">
+    <div class="order-detail-main">
+      <article class="order-detail-card">
+        <div class="order-detail-card-heading">
+          <span class="order-detail-icon" aria-hidden="true">♙</span>
+          <div>
+            <p class="eyebrow">DELIVERING TO</p>
+            <h2>Customer & address</h2>
+          </div>
+        </div>
+
+        <div class="order-detail-info-grid">
+          <div>
+            <span class="order-detail-label">CUSTOMER</span>
+            <p>{{ order.customer_name }}</p>
+            <a href="mailto:{{ order.customer_email }}">{{ order.customer_email }}</a>
+          </div>
+          <div>
+            <span class="order-detail-label">SHIPPING ADDRESS</span>
+            <p>{{ order.shipping_address or "No address recorded" }}</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="order-detail-card">
+        <div class="order-detail-card-heading">
+          <span class="order-detail-icon" aria-hidden="true">✦</span>
+          <div>
+            <p class="eyebrow">IN THIS ORDER</p>
+            <h2>Items</h2>
+          </div>
+        </div>
+
+      {% if items %}
+        <ul class="order-detail-items">
+         {% for item in items %}
+         <li class="order-detail-item">
+          <a
+          class="order-item-image"
+          href="{{ url_for('product_detail', product_id=item.product_id) }}"
+          aria-label="View {{ item.name }}"
+          >
+          <img src="{{ item.image }}" alt="{{ item.name }}">
+        </a>
+
+        <div class="order-item-info">
+          <a
+            class="order-item-name"
+            href="{{ url_for('product_detail', product_id=item.product_id) }}"
+          >
+            {{ item.name }}
+          </a>
+          <span>Quantity: {{ item.quantity }}</span>
+        </div>
+
+        <strong class="order-item-price">
+          {{ (item.unit_price_cents * item.quantity)|money }}
+        </strong>
+      </li>
+     {% endfor %}
+       </ul>
+     {% else %}
+     <p class="order-detail-empty">No order items recorded.</p>
+     {% endif %}
+      </article>
+    </div>
+
+    <aside class="order-detail-summary">
+      <p class="eyebrow">PAYMENT SUMMARY</p>
+      <div class="order-summary-line">
+        <span>Items</span>
+        <span>{{ items|length }}</span>
+      </div>
+      <div class="order-summary-total">
+        <span>Total paid</span>
+        <strong>{{ order.total_cents|money }}</strong>
+      </div>
+      <p class="order-summary-note">
+        Thank you for shopping with Morrow Market.
+      </p>
+    </aside>
+  </div>
+</section>
+{% endblock %}
